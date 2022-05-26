@@ -77,11 +77,14 @@ public class APPHelloWorld01 extends RouteBuilder {
 //        rest("/customers")
 //                .get().to("direct:get");
 
-        rest("/soap")
-                .post().to("direct:soap");
+//        rest("/soap")
+//                .post().to("direct:soap");
+//
+//        rest("/sql")
+//                .get().to("direct:sql");
 
-        rest("/sql")
-                .get().to("direct:sql");
+        rest("/kafka")
+                .get().to("direct:kafka");
 //
 //        rest("/multicast")
 //                .get().to("direct:multicast");
@@ -114,14 +117,14 @@ public class APPHelloWorld01 extends RouteBuilder {
 //                "httpMethod=POST" +
 //                "&dataFormat=RAW");
 
-        String cxfUrl = "cxf:" +
-                "http://localhost:8082/WebServiceDemo/sayHello" +
-                "?" +
-                "wsdlURL=http://localhost:8082/WebServiceDemo/sayHello?wsdl" +
-                "&" +
-                "dataFormat=PAYLOAD" +
-                "&" +
-                "skipPayloadMessagePartCheck=true";
+//        String cxfUrl = "cxf:" +
+//                "http://localhost:8082/WebServiceDemo/sayHello" +
+//                "?" +
+//                "wsdlURL=http://localhost:8082/WebServiceDemo/sayHello?wsdl" +
+//                "&" +
+//                "dataFormat=PAYLOAD" +
+//                "&" +
+//                "skipPayloadMessagePartCheck=true";
 //        CxfEndpoint cxfEndpoint1 = new CxfEndpoint(cxfUrl);
 
 //        ((CxfEndpoint)cxfEndpoint).getFeatures().add(new LoggingFeature());
@@ -129,43 +132,43 @@ public class APPHelloWorld01 extends RouteBuilder {
         String body = "1";
 
 
-        from("direct:soap")
+//        from("direct:soap")
 //                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
-                .process(new Processor() {
-                    @Override
-                    public void process(Exchange exchange) throws Exception {
-                        exchange.getIn().setBody(body);
-                        System.out.println("");
-                    }
-                })
-                .to(cxfUrl)
-                .process(new Processor() {
-                    @Override
-                    public void process(Exchange exchange) throws Exception {
-                        System.out.println();
-                    }
-                })
-                .log("Response from the Get User operation was: ${body}");
+//                .process(new Processor() {
+//                    @Override
+//                    public void process(Exchange exchange) throws Exception {
+//                        exchange.getIn().setBody(body);
+//                        System.out.println("");
+//                    }
+//                })
+//                .to(cxfUrl)
+//                .process(new Processor() {
+//                    @Override
+//                    public void process(Exchange exchange) throws Exception {
+//                        System.out.println();
+//                    }
+//                })
+//                .log("Response from the Get User operation was: ${body}");
 
         // TO sql test
-        from("direct:sql")
-                .setBody(constant("select * from user where id = 1"))
-                .to("jdbc:DataSource03?outputType=SelectList").process(new Processor() {
-
-            @Override
-            public void process(Exchange exchange) throws Exception {
-
-                System.out.println(exchange.toString());
-
-                String str = exchange.getIn().getBody().toString();
-                System.out.println("str : " + str);
-
-                Object obj = exchange.getIn().getBody();
-                System.out.println("obj : " + obj.getClass());
-                System.out.println("obj : " + obj);
-
-            }
-        }).to("log:JDBCRoutesTest?showExchangeId=true");
+//        from("direct:sql")
+//                .setBody(constant("select * from user where id = 1"))
+//                .to("jdbc:DataSource03?outputType=SelectList").process(new Processor() {
+//
+//            @Override
+//            public void process(Exchange exchange) throws Exception {
+//
+//                System.out.println(exchange.toString());
+//
+//                String str = exchange.getIn().getBody().toString();
+//                System.out.println("str : " + str);
+//
+//                Object obj = exchange.getIn().getBody();
+//                System.out.println("obj : " + obj.getClass());
+//                System.out.println("obj : " + obj);
+//
+//            }
+//        }).to("log:JDBCRoutesTest?showExchangeId=true");
 //
 //
 //        // TO http aggregation
@@ -198,6 +201,12 @@ public class APPHelloWorld01 extends RouteBuilder {
 //                .toD("http://127.0.0.1:8088/sleep3?httpMethod=GET&id=${property.camel-prefix-id}&bridgeEndpoint=true")
 //                .log("Response from the Get User operation was: ${body}");
 
+        // TO kafka test
+        from("direct:kafka")
+                .setBody(constant("Message from Camel"))          // Message to send
+                .setHeader("kafka.KEY", constant("Camel")) // Key of the message
+                .to("kafka:topic_2?brokers=10.255.249.3:9092")
+                .log("Response from the Get User operation was");;
 
 
     }
